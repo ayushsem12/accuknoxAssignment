@@ -10,12 +10,10 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.contrib.auth.models import User
 
-# Signal handler
 @receiver(post_save, sender=User)
 def my_handler(sender, **kwargs):
     print(f"Signal received in thread: {threading.current_thread().name}")
 
-# Simulate saving a user
 user = User(username='testuser')
 print(f"Saving user in thread: {threading.current_thread().name}")
 user.save()
