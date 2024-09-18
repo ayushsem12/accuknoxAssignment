@@ -1,1 +1,23 @@
+Yes, Django signals run in the same thread as the caller by default
+
+1.models.py:::
+
+import threading
+from django.db import models
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+
+class MyModel(models.Model):
+    name = models.CharField(max_length=100)
+
+@receiver(post_save, sender=MyModel)
+def my_signal_receiver(sender, instance, **kwargs):
+    print(f"Signal Receiver Thread ID: {threading.get_ident()}")
+
+2.In a Django shell or view, save the model:::
+
+import threading
+from myapp.models import MyModel
+print(f"Caller Thread ID: {threading.get_ident()}")
+instance = MyModel.objects.create(name="Test")
 
