@@ -1,4 +1,7 @@
-Yes, Django signals run in the same thread as the caller by default
+Yes, Django signals run in the same thread as the caller by default. To prove this,
+we can use Python's threading module to print out the thread ID of both the caller and the receiver.
+If they match, it means they run in the same thread.
+
 
 1.models.py:::
 
@@ -13,6 +16,7 @@ class MyModel(models.Model):
 @receiver(post_save, sender=MyModel)
 def my_signal_receiver(sender, instance, **kwargs):
     print(f"Signal Receiver Thread ID: {threading.get_ident()}")
+
 
 2.In a Django shell or view, save the model:::
 
