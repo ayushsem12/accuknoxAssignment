@@ -1,1 +1,33 @@
+By default, Django signals are executed synchronously.
 
+
+1.Create a signals.py::::
+
+import time
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+from .models import MyModel
+
+@receiver(post_save, sender=MyModel)
+def my_signal_receiver(sender, instance, **kwargs):
+    print("Signal started...")
+    time.sleep(5)  # Simulate a time-consuming task
+    print("Signal finished.")
+
+
+2.In models.py, define a simple model and import the signal.:::
+
+from django.db import models
+from .signals import my_signal_receiver
+
+class MyModel(models.Model):
+    name = models.CharField(max_length=100)
+
+
+3.Use the signal by saving an instance of MyModel.:::
+
+from myapp.models import MyModel
+
+print("Saving model instance...")
+instance = MyModel.objects.create(name="Test")
+print("Model instance saved.")
