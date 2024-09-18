@@ -1,1 +1,36 @@
+Yes, by default, Django signals run in the same database transaction as the caller.
+
+1.models.py:::
+
+from django.db import models, transaction
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+import threading
+
+class MyModel(models.Model):
+    name = models.CharField(max_length=100)
+    processed = models.BooleanField(default=False)
+
+@receiver(post_save, sender=MyModel)
+def my_signal_receiver(sender, instance, **kwargs):
+    print(f"Signal executed in thread: {threading.get_ident()}")
+    instance.processed = True
+    instance.save()
+    print(f"Signal: Instance {instance.id} processed field set to {instance.processed}")
+
+2.In the Django shell or a view:
+
+from myapp.models import MyModel
+from django.db import transaction
+
+try:
+    with transaction.atomic():
+        instance = MyModel.objects.create(name="Test")
+        print(f"Caller: Created instance {instance.id}")
+        
+        raise Exception("Forcing a rollback")
+except Exception as e:
+    print(f"Transaction failed: {e}")
+
+print(f"Processed value after transaction: {MyModel.objects.get(id=instance.id).processed}")
 
